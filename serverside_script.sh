@@ -1,6 +1,8 @@
 #!/bin/bash
 # Setting the port speed
-stty -F /dev/ttyACM0 raw speed 9600
+ARDUINOPORT=/dev/ttyACM1
+
+stty -F $ARDUINOPORT raw speed 9600
 
 # login details for idrac server
 IDRACIP="idrac-esx02.maes.local"
@@ -9,7 +11,7 @@ IDRACPASS="test"
 
 while true;
 do
-        read result < /dev/ttyACM0 
+        read result < $ARDUINOPORT
 	EVAL=$(echo $result | cut -f1 -d"_")
         case $EVAL in
         START)
@@ -25,6 +27,10 @@ done &
 
 while true;
 do
-	ipmitool -I lanplus -H $IDRACIP -U $IDRACUSER -P $IDRACPASS sdr type temperature | grep 0Eh | cut -d"|" -f5 | cut -d" " -f2 > /dev/ttyACM0
+	T1=$(ipmitool -I lanplus -H $IDRACIP -U $IDRACUSER -P $IDRACPASS sdr type temperature | grep 0Eh | cut -d"|" -f5 | cut -d" " -f2)
+	T2=$(ipmitool -I lanplus -H $IDRACIP -U $IDRACUSER -P $IDRACPASS sdr type temperature | grep 0Fh | cut -d"|" -f5 | cut -d" " -f2)
+	echo "CPU1$T1" > $ARDUINOPORT
+	sleep 5;
+	echo "CPU2$T2" > $ARDUINOPORT
 	sleep 10;
 done
