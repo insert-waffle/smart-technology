@@ -21,7 +21,7 @@
 #define IR_9 0x5A
 #define IR_0 0x52
 #define IR_HASHTAG 0x4A
-#define IR_STAR 0x4A
+#define IR_STAR 0x42
 
 #include <IRremote.h>
 #include <LiquidCrystal_I2C.h>
@@ -57,28 +57,59 @@ void loop() {
     String cpuID, cpuTemp;
     cpuID = temp.substring(3,4);
     cpuTemp = temp.substring(4,7);
-    lcd.print("CPU"+cpuID+": "+cpuTemp+" C");
+    lcd.print("S"+cpuID+": "+cpuTemp+" C");
     delay(100);
   }
   
   if (IrReceiver.decode()) {
-    //Serial.println(IrReceiver.decodedIRData.command, HEX);
     int result = IrReceiver.decodedIRData.command;
-    //Serial.println(result);
     delay(100);
     switch (IrReceiver.decodedIRData.command) {
-      case IR_UP:
-        Serial.println("START_");
-        break;
-      case IR_DOWN:
-        Serial.println("STOP_");
+      case IR_HASHTAG:
+        IrReceiver.resume();
+        while(!IrReceiver.decode()) {
+          // We're just waiting for the next input tbh...  
+        }
+        switch(IrReceiver.decodedIRData.command) {
+          case IR_1:
+            IrReceiver.resume();
+            while(!IrReceiver.decode()) {
+              // We're just waiting for the next input tbh...  
+            }
+            switch(IrReceiver.decodedIRData.command) {
+              case IR_UP:
+                changeFanSpeed("S1","0xA");
+                break;
+              case IR_DOWN:
+                changeFanSpeed("S1","0xB");
+                break;
+            }
+            break;
+        }
         break;
       case IR_STAR:
-        lcd.clear();
-        break;
+        IrReceiver.resume();
+        while(!IrReceiver.decode()) {
+          // We're just waiting for the next input tbh...  
+        }
+        switch(IrReceiver.decodedIRData.command) {
+          case IR_1:
+            getSpeed("S1");
+            break;
+        }
+    IrReceiver.resume(); // Receive the next value 
     }
-      
-    IrReceiver.resume(); // Receive the next value
-    
   }
+}
+
+void changeFanSpeed(String server, String fspeed) {
+  Serial.println(server+"$"+fspeed+"_");
+}
+
+void getRoomTemp() {
+  
+}
+
+void getSpeed(String server) {
+  Serial.println(server+"GET_");
 }
