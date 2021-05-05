@@ -1,10 +1,10 @@
 /*
- * RoomADM
- * A project by Jens Maes & Jonas Lembrechts
- * Arduino: Arduino UNO
- * IR remote: LAFVIN
+ * IRremote: IRrecvDemo - demonstrates receiving IR codes with IRrecv
+ * An IR detector/demodulator must be connected to the input RECV_PIN.
+ * Version 0.1 July, 2009
+ * Copyright 2009 Ken Shirriff
+ * http://arcfn.com
  */
-
 #define IR_UP 0x46
 #define IR_DOWN 0x15
 #define IR_RIGHT 0x43
@@ -22,6 +22,7 @@
 #define IR_0 0x52
 #define IR_HASHTAG 0x4A
 #define IR_STAR 0x4A
+
 
 #include <IRremote.h>
 #include <LiquidCrystal_I2C.h>
@@ -48,19 +49,14 @@ void setup()
 }
 
 void loop() {
-  lcd.setCursor(0,0);
-  lcd.print("Placeholder");
-  
+
   if (Serial.available() > 0) {
-    lcd.setCursor(0,1);
+    lcd.clear();
     String temp = Serial.readStringUntil('\n');
-    String cpuID, cpuTemp;
-    cpuID = temp.substring(3,4);
-    cpuTemp = temp.substring(4,7);
-    lcd.print("CPU"+cpuID+": "+cpuTemp+" C");
+    lcd.print("Temp: "+temp+" C");
     delay(100);
   }
-  
+
   if (IrReceiver.decode()) {
     //Serial.println(IrReceiver.decodedIRData.command, HEX);
     int result = IrReceiver.decodedIRData.command;
@@ -77,8 +73,8 @@ void loop() {
         lcd.clear();
         break;
     }
-      
+
     IrReceiver.resume(); // Receive the next value
-    
+
   }
 }
