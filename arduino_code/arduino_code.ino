@@ -21,7 +21,7 @@
 #define IR_9 0x5A
 #define IR_0 0x52
 #define IR_HASHTAG 0x4A
-#define IR_STAR 0x4A
+#define IR_STAR 0x42
 
 
 #include <IRremote.h>
@@ -53,28 +53,72 @@ void loop() {
   if (Serial.available() > 0) {
     lcd.clear();
     String temp = Serial.readStringUntil('\n');
+<<<<<<< HEAD
     lcd.print("Temp: "+temp+" C");
+=======
+    String cpuID, cpuTemp;
+    cpuID = temp.substring(3,4);
+    cpuTemp = temp.substring(4,7);
+    lcd.print("S"+cpuID+": "+cpuTemp+" C");
+>>>>>>> c331198b80ffeba4d6a5465fcec143cc90c446d8
     delay(100);
   }
 
   if (IrReceiver.decode()) {
-    //Serial.println(IrReceiver.decodedIRData.command, HEX);
     int result = IrReceiver.decodedIRData.command;
-    //Serial.println(result);
     delay(100);
     switch (IrReceiver.decodedIRData.command) {
-      case IR_UP:
-        Serial.println("START_");
-        break;
-      case IR_DOWN:
-        Serial.println("STOP_");
+      case IR_HASHTAG:
+        IrReceiver.resume();
+        while(!IrReceiver.decode()) {
+          // We're just waiting for the next input tbh...  
+        }
+        switch(IrReceiver.decodedIRData.command) {
+          case IR_1:
+            IrReceiver.resume();
+            while(!IrReceiver.decode()) {
+              // We're just waiting for the next input tbh...  
+            }
+            switch(IrReceiver.decodedIRData.command) {
+              case IR_UP:
+                changeFanSpeed("S1","0xA");
+                break;
+              case IR_DOWN:
+                changeFanSpeed("S1","0xB");
+                break;
+            }
+            break;
+        }
         break;
       case IR_STAR:
-        lcd.clear();
-        break;
+        IrReceiver.resume();
+        while(!IrReceiver.decode()) {
+          // We're just waiting for the next input tbh...  
+        }
+        switch(IrReceiver.decodedIRData.command) {
+          case IR_1:
+            getSpeed("S1");
+            break;
+        }
+    IrReceiver.resume(); // Receive the next value 
     }
+<<<<<<< HEAD
 
     IrReceiver.resume(); // Receive the next value
 
+=======
+>>>>>>> c331198b80ffeba4d6a5465fcec143cc90c446d8
   }
+}
+
+void changeFanSpeed(String server, String fspeed) {
+  Serial.println(server+"$"+fspeed+"_");
+}
+
+void getRoomTemp() {
+  
+}
+
+void getSpeed(String server) {
+  Serial.println(server+"GET_");
 }

@@ -11,18 +11,20 @@ IDRACPASS="test"
 
 while true;
 do
-        read result < $ARDUINOPORT
+    read result < $ARDUINOPORT
 	EVAL=$(echo $result | cut -f1 -d"_")
-        case $EVAL in
-        START)
-                echo "Received start, setting fan speed to 0x32"
-		ipmitool -I lanplus -H $IDRACIP -U $IDRACUSER -P $IDRACPASS raw 0x30 0x30 0x02 0xff 0x32;;
-	STOP)
-		echo "Received stop, setting fan speed to 0xF"
-		ipmitool -I lanplus -H $IDRACIP -U $IDRACUSER -P $IDRACPASS raw 0x30 0x30 0x02 0xff 0xF;;
-	*)
-		echo "Oops...";;
-        esac
+    case $EVAL in
+		S1UP)
+			echo "Received stop, setting fan speed to 0xF"
+			ipmitool -I lanplus -H $IDRACIP -U $IDRACUSER -P $IDRACPASS raw 0x30 0x30 0x02 0xff 0xF;;
+			read result < $ARDUINOPORT
+			EVAL=$(echo $result | cut -f1 -d"_")
+		S1DOWN)
+			echo "Received stop, setting fan speed to 0xF"
+			ipmitool -I lanplus -H $IDRACIP -U $IDRACUSER -P $IDRACPASS raw 0x30 0x30 0x02 0xff 0xF;;
+		*)
+			echo "Oops...";;
+			esac
 done &
 
 while true;
